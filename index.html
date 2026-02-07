@@ -37,8 +37,8 @@
             position: absolute;
             width: 200%;
             height: 200%;
-            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-image: linear-gradient(rgba(255, 51, 0, 0.15) 3px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 51, 0, 0.15) 3px, transparent 1px);
             background-size: 60px 60px;
             transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
             animation: grid-move 20s linear infinite;
@@ -52,6 +52,16 @@
             }
             100% {
                 background-position: 0 60px;
+            }
+        }
+
+        /* 移动端网格优化 - 更平直、更明显 */
+        @media (max-width: 900px) {
+            .grid-bg {
+                background-image: linear-gradient(rgba(255, 51, 0, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 51, 0, 0.2) 1px, transparent 1px);
+                background-size: 40px 40px;
+                transform: perspective(300px) rotateX(30deg) translateY(-50px) translateZ(-100px);
             }
         }
 
@@ -111,7 +121,7 @@
             font-size: 0.85rem;
             border-radius: 4px;
             margin-bottom: 20px;
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 148, 133, 0.2);
         }
 
         p.desc {
@@ -132,7 +142,7 @@
             padding: 12px 24px;
             font-weight: 600;
             text-decoration: none;
-            border-radius: 50px;
+            border-radius: 12px;
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
@@ -270,6 +280,18 @@
             transform: scale(1.05);
         }
 
+        /* --- 移动端点击激活状态 --- */
+        .card-back.active,
+        .card-front.active {
+            z-index: 20 !important;
+            filter: brightness(1) blur(0) !important;
+            transform: scale(1.05) !important;
+        }
+
+        .card-back.active ~ .card-front {
+            filter: brightness(0.4) blur(4px) !important;
+        }
+
         /*--- 灯箱 (Lightbox) --- */
         .lightbox {
             position: fixed;
@@ -323,19 +345,22 @@
         @media (max-width: 900px) {
             body {
                 height: auto;
-                padding: 40px 0;
+                min-height: 100vh;
+                padding: 20px 0 60px;
                 overflow-y: auto;
             }
 
             .container {
                 flex-direction: column;
                 height: auto;
+                padding: 0 20px;
             }
 
             .content {
                 text-align: center;
-                margin-bottom: 60px;
+                margin-bottom: 40px;
                 padding: 0;
+                margin-top: 0;
             }
 
             .desc {
@@ -345,15 +370,53 @@
 
             .btn-group {
                 justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 200px;
+                padding: 14px 24px;
             }
 
             .showcase {
                 width: 100%;
-                height: 400px;
+                height: 300px;
             }
 
             .deck {
-                transform: scale(0.6);
+                transform: scale(0.55);
+                transform-origin: center center;
+            }
+
+            /* 移动端禁用hover效果，使用active类 */
+            .card-back:hover,
+            .card-front:hover {
+                transform: none;
+                filter: inherit;
+                z-index: inherit;
+            }
+
+            .card-back:hover ~ .card-front {
+                filter: inherit;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .deck {
+                transform: scale(0.45);
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .badge {
+                font-size: 0.75rem;
+            }
+
+            p.desc {
+                font-size: 1rem;
             }
         }
     </style>
@@ -367,11 +430,12 @@
     <div class="container">
         <!-- 左侧内容 -->
         <div class="content">
-            <div class="badge">/// SYSTEM_OFFLINE</div>
+            <div class="badge">// SYSTEM_OFFLINE</div>
             <h1>ONLINE IS <span class="highlight">DEAD</span>.<br>LONG LIVE<br>LOCALHOST.</h1>
             <p class="desc">
-                在线服务临时终止，但传奇不灭<br>
-                我们已将全套核心代码库、Docker 镜像及部署文档完全开源
+                云端帷幕暂落，传奇薪火相传<br>
+                因服务器到期，在线体验已暂时终止<br>
+                但这并非终点 —— 核心代码库与部署文档全量开源。期待在代码的浩瀚星河中，与你再次重逢
             </p>
             <div class="btn-group">
                 <a href="https://github.com/fastapi-practices/fastapi_best_architecture"
@@ -424,6 +488,29 @@
 
         function closeLightbox() {
             lightbox.classList.remove('active');
+        }
+
+        // --- 移动端卡片交互 ---
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+        if (isTouchDevice) {
+            const cards = document.querySelectorAll('.window-card');
+
+            cards.forEach(card => {
+                card.addEventListener('touchstart', function (e) {
+                    // 移除所有active状态
+                    cards.forEach(c => c.classList.remove('active'));
+                    // 激活当前卡片
+                    this.classList.add('active');
+                });
+            });
+
+            // 点击其他地方取消激活
+            document.addEventListener('touchstart', function (e) {
+                if (!e.target.closest('.window-card')) {
+                    cards.forEach(c => c.classList.remove('active'));
+                }
+            });
         }
     </script>
 </body>
