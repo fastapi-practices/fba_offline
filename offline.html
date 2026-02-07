@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Code Remains | Neon Stack Edition</title>
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --text-main: #ffffff;
+            --accent-color: #ff3300;
+            --glass-bg: rgba(20, 20, 20, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --card-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- 动态背景网格 --- */
+        .grid-bg {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
+            animation: grid-move 20s linear infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes grid-move {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 0 60px;
+            }
+        }
+
+        /* --- 光晕氛围--- */
+        .glow-spot {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 148, 133, 0.2) 0%, transparent 70%);
+            top: -20%;
+            right: -10%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* --- 主容器 --- */
+        .container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            width: 90%;
+            max-width: 1400px;
+            height: 80vh;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* --- 左侧文案 --- */
+        .content {
+            flex: 0 0 40%;
+            padding-right: 40px;
+            opacity: 0;
+            animation: fade-in-up 1s ease forwards 0.5s;
+            margin-top: -80px;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 4vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        span.highlight {
+            -webkit-text-fill-color: var(--accent-color);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            color: #bbb;
+            font-family: monospace;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+        }
+
+        p.desc {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #bbb;
+            margin-bottom: 40px;
+            border-left: 3px solid var(--accent-color);
+            padding-left: 20px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--text-main);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-outline {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+        }
+
+        .btn-outline:hover {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* --- 右侧展示区 (核心) --- */
+        .showcase {
+            flex: 1;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .deck {
+            position: relative;
+            width: 600px;
+            height: 400px;
+        }
+
+        /* 窗口卡片通用样式 */
+        .window-card {
+            position: absolute;
+            background: #1a1a1a;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+            filter 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+            z-index 0s;
+            width: 100%;
+            cursor: zoom-in;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 模拟浏览器头部 */
+        .win-header {
+            height: 28px;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 8px;
+        }
+
+        .win-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #333;
+        }
+
+        .win-dot.r {
+            background: #ff5f56;
+        }
+
+        .win-dot.y {
+            background: #ffbd2e;
+        }
+
+        .win-dot.g {
+            background: #27c93f;
+        }
+
+        .win-body {
+            position: relative;
+            width: 100%;
+            line-height: 0;
+        }
+
+        .win-body img {
+            width: 100%;
+            height: auto;
+            display: block;
+            pointer-events: none;
+        }
+
+        /* 后卡片 (Analyze) */
+        .card-back {
+            top: -80px;
+            left: 120px;
+            z-index: 1;
+            filter: brightness(0.6) blur(1px);
+            pointer-events: auto;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+            filter 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+            z-index 0s;
+        }
+
+        /* 前卡片 (Login) */
+        .card-front {
+            bottom: -20px;
+            right: 20px;
+            z-index: 10;
+            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+            filter 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        /* --- 悬停 Analyze 卡片时 --- */
+        .card-back:hover {
+            z-index: 20;
+            filter: brightness(1) blur(0);
+            transform: scale(1.08);
+        }
+
+        .card-back:hover ~ .card-front {
+            filter: brightness(0.4) blur(4px);
+        }
+
+        /* --- 悬停 Login 卡片时 --- */
+        .card-front:hover {
+            z-index: 20;
+            transform: scale(1.05);
+        }
+
+        /*--- 灯箱 (Lightbox) --- */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            cursor: zoom-out;
+            backdrop-filter: blur(10px);
+        }
+
+        .lightbox.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .lightbox img {
+            max-width: 90vw;
+            max-height: 90vh;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transform: scale(0.9);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .lightbox.active img {
+            transform: scale(1);
+        }
+
+        /* 动画关键帧 */
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 900px) {
+            body {
+                height: auto;
+                padding: 40px 0;
+                overflow-y: auto;
+            }
+
+            .container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .content {
+                text-align: center;
+                margin-bottom: 60px;
+                padding: 0;
+            }
+
+            .desc {
+                border: none;
+                padding: 0;
+            }
+
+            .btn-group {
+                justify-content: center;
+            }
+
+            .showcase {
+                width: 100%;
+                height: 400px;
+            }
+
+            .deck {
+                transform: scale(0.6);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="grid-bg"></div>
+    <div class="glow-spot"></div>
+    <div class="glow-spot blue"></div>
+
+    <div class="container">
+        <!-- 左侧内容 -->
+        <div class="content">
+            <div class="badge">/// SYSTEM_OFFLINE</div>
+            <h1>ONLINE IS <span class="highlight">DEAD</span>.<br>LONG LIVE<br>LOCALHOST.</h1>
+            <p class="desc">
+                在线服务临时终止，但传奇不灭<br>
+                我们已将全套核心代码库、Docker 镜像及部署文档完全开源
+            </p>
+            <div class="btn-group">
+                <a href="https://github.com/fastapi-practices/fastapi_best_architecture"
+                   class="btn btn-primary">GitHub 仓库</a>
+                <a href="https://docs.fba.wu-clan.cc/fastapi_best_architecture_docs/backend/deploy/Docker.html"
+                   class="btn btn-outline">部署文档</a>
+            </div>
+        </div>
+
+        <!-- 右侧视觉区 -->
+        <div class="showcase">
+            <div class="deck" id="cardDeck">
+
+                <!-- 卡片 1: Analyze (后) -->
+                <div class="window-card card-back" onclick="openLightbox('analyze.png')">
+                    <div class="win-header">
+                        <span class="win-dot r"></span><span class="win-dot y"></span><span class="win-dot g"></span>
+                    </div>
+                    <div class="win-body">
+                        <img src="analyze.png" alt="Analytics Dashboard">
+                    </div>
+                </div><!-- 卡片 2: Login (前) -->
+                <div class="window-card card-front" onclick="openLightbox('login.png')">
+                    <div class="win-header">
+                        <span class="win-dot r"></span><span class="win-dot y"></span><span class="win-dot g"></span>
+                    </div>
+                    <div class="win-body">
+                        <img src="login.png" alt="Login Screen">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 灯箱 -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <img src="" id="lightboxImg">
+    </div>
+
+    <script>
+        // --- 灯箱控制 (Lightbox Control) ---
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+
+        function openLightbox(src) {
+            lightboxImg.src = src;
+            lightbox.classList.add('active');
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+        }
+    </script>
+</body>
+</html>
